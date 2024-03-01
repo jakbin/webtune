@@ -22,12 +22,14 @@ def run_server(host:str=None, port:int=None, music_path:str=None):
     for file in files:
         if file.endswith('mp3'):
             audiofile = load(f"{music_path}/{file}")
-
-            song_name = audiofile.tag.title
-            artist = audiofile.tag.artist
-            duration = convert_to_minutes_seconds(int(audiofile.info.time_secs))
-            song_meta = {'name': song_name, 'artist': artist, 'duration': duration}
-            songs.append(song_meta)
+            try:
+                song_name = audiofile.tag.title
+                artist = audiofile.tag.artist
+                duration = convert_to_minutes_seconds(int(audiofile.info.time_secs))
+                song_meta = {'name': song_name, 'artist': artist, 'duration': duration}
+                songs.append(song_meta)
+            except AttributeError:
+                pass
 
     dict_songs = []
     for song in files:
