@@ -72,36 +72,12 @@
 
 				<!-- Right Side Player -->
 				<div id="amplitude-right">
-					{% for song in songs %}
-					<div class="song amplitude-song-container amplitude-play-pause" data-amplitude-song-index="{{songs.index(song)}}">
-						<div class="song-now-playing-icon-container">
-							<div class="play-button-container">
-
-							</div>
-							<img class="now-playing" src="../static/img/now-playing.svg"/>
-						</div>
-						<div class="song-meta-data">
-							<span class="song-title">{{song['name']}}</span>
-							<span class="song-artist">{{song['artist']}}</span>
-						</div>
-						<a href="https://switchstancerecordings.bandcamp.com/track/risin-high-feat-raashan-ahmad" class="bandcamp-link" target="_blank">
-							<img class="bandcamp-grey" src="../static/img/bandcamp-grey.svg"/>
-							<img class="bandcamp-white" src="../static/img/bandcamp-white.svg"/>
-						</a>
-						<span class="song-duration">{{song['duration']}}</span>
-					</div>
-					{% endfor %}
 				</div>
 				<!-- End Right Side Player -->
 			</div>
 			<!-- End Amplitdue Player -->
 		</div>
-		
-		<!--
-			Include UX functions JS
 
-			NOTE: These are for handling things outside of the scope of AmplitudeJS
-		-->
 		<script type="text/javascript" src="../static/js/functions.js"></script>
 	</body>
 </html>

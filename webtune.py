@@ -14,22 +14,29 @@ def convert_to_minutes_seconds(duration):
     seconds = duration % 60
     return f"{minutes}:{seconds:02d}"
 
-def run_server(host:str=None, port:int=None, music_path:str=None):
-
+def songs_list_right(music_path):
     files = os.listdir(music_path)
 
     songs = []
     for file in files:
         if file.endswith('mp3'):
-            audiofile = load(f"{music_path}/{file}")
             try:
-                song_name = audiofile.tag.title
-                artist = audiofile.tag.artist
-                duration = convert_to_minutes_seconds(int(audiofile.info.time_secs))
-                song_meta = {'name': song_name, 'artist': artist, 'duration': duration}
-                songs.append(song_meta)
-            except AttributeError:
+                audiofile = load(f"{music_path}/{file}")
+                try:
+                    song_name = audiofile.tag.title
+                    artist = audiofile.tag.artist
+                    duration = convert_to_minutes_seconds(int(audiofile.info.time_secs))
+                    song_meta = {'name': song_name, 'artist': artist, 'duration': duration, 'file_name' : file}
+                    songs.append(song_meta)
+                except AttributeError:
+                    pass
+            except OSError:
                 pass
+
+    return songs
+
+def songs_list_left(music_path):
+    files = os.listdir(music_path)
 
     dict_songs = []
     for song in files:
@@ -37,15 +44,22 @@ def run_server(host:str=None, port:int=None, music_path:str=None):
             dict_song = {'name': song.replace('.mp3', ''), 'url': song, 'cover_art_url': '../static/img/song.jpg'}
             dict_songs.append(dict_song)
 
+    return dict_songs
+
+def run_server(host:str=None, port:int=None, music_path:str=None):
+    
     @app.route("/")
     def home():
-        if songs == []:
-            return "<h1>No song found, please set correct music folder !!</h1>"
-        else:
-            return render_template('index.html', songs=songs)
+        return render_template('index.html')
+    
+    @app.route("/songs_list")
+    def songs_container():
+        songs = songs_list_right(music_path)
+        return jsonify({'songs': songs})
 
     @app.route("/songs")
     def songs_list():
+        dict_songs = songs_list_left(music_path)
         return jsonify(dict_songs)
 
     @app.route("/<string:song>.mp3", methods = ['GET'])
