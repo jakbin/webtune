@@ -108,29 +108,12 @@ function loadSongsList() {
                 songMetaData.appendChild(songArtist);
                 songMetaData.appendChild(fileName);
 
-                // const bandcampLink = document.createElement('a');
-                // bandcampLink.classList.add('bandcamp-link');
-                // bandcampLink.href = 'https://switchstancerecordings.bandcamp.com/track/risin-high-feat-raashan-ahmad';
-                // bandcampLink.target = '_blank';
-
-                // const bandcampGreyImg = document.createElement('img');
-                // bandcampGreyImg.classList.add('bandcamp-grey');
-                // bandcampGreyImg.src = '../static/img/bandcamp-grey.svg';
-
-                // const bandcampWhiteImg = document.createElement('img');
-                // bandcampWhiteImg.classList.add('bandcamp-white');
-                // bandcampWhiteImg.src = '../static/img/bandcamp-white.svg';
-
-                // bandcampLink.appendChild(bandcampGreyImg);
-                // bandcampLink.appendChild(bandcampWhiteImg);
-
                 const songDuration = document.createElement('span');
                 songDuration.classList.add('song-duration');
                 songDuration.textContent = song.duration;
 
                 songContainer.appendChild(songNowPlayingIconContainer);
                 songContainer.appendChild(songMetaData);
-                // songContainer.appendChild(bandcampLink);
                 songContainer.appendChild(songDuration);
 
                 songsContainer.appendChild(songContainer);
@@ -163,6 +146,11 @@ function getSongs() {
 function loadSongs() {
     return getSongs().then(() => {
         Amplitude.init({
+            "bindings": {
+                39: 'next',
+                37: 'prev',
+                32: 'play_pause',
+            },
             continue_next: true,
             "songs": songs,
         });
@@ -177,3 +165,76 @@ loadSongsList()
     .catch(error => {
         console.error("Error loading songs:", error);
     });
+
+
+// Define the onDeleteButtonClick function separately
+function onDeleteButtonClick(songName) {
+    console.log("Delete button clicked for song:", songName);
+    const data = { songName: songName };
+
+    const options = { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) };
+
+    fetch('/deleteSong', options)
+    .then(response => {
+        if (!response.ok) {
+        throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response:', data);
+        // Handle the response data here
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        // Handle errors here
+    });
+
+    loadSongsList()
+        .then(success => {
+            console.log("Songs loaded successfully:", success);
+            loadSongs();
+        })
+        .catch(error => {
+            console.error("Error loading songs:", error);
+        });
+}
+
+document.addEventListener("contextmenu", function(event) {
+    // Prevent the default context menu
+    event.preventDefault();
+
+    // Check if the clicked element is a song container
+    var clickedElement = event.target.closest(".song");
+    if (clickedElement) {
+        // Find the song name
+        var songName = clickedElement.querySelector(".file-name").textContent;
+
+        // Show the custom context menu
+        var customMenu = document.getElementById("custom-menu");
+        customMenu.style.display = "block";
+
+        // Position the custom menu at the click location
+        customMenu.style.top = event.clientY + "px";
+        customMenu.style.left = event.clientX + "px";
+
+        // Remove any existing click event listener for the delete button
+        var deleteButton = document.getElementById("delete-button");
+        deleteButton.removeEventListener("click", onDeleteButtonClick); // Remove any existing listener
+
+        // Add a click event listener to the delete button, passing the song name
+        deleteButton.addEventListener("click", function() {
+            onDeleteButtonClick(songName); // Call the function with the songName parameter
+        });
+    } else {
+        // Hide the custom menu if clicked outside a song
+        document.getElementById("custom-menu").style.display = "none";
+    }
+});
+
+// Hide the custom menu when clicking anywhere outside of it
+document.addEventListener("click", function(event) {
+    if (!event.target.closest(".song")) {
+        document.getElementById("custom-menu").style.display = "none";
+    }
+});

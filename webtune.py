@@ -2,7 +2,7 @@ import os
 import argparse
 from pathlib import Path
 
-from flask import Flask, render_template, send_file, jsonify
+from flask import Flask, render_template, send_file, jsonify, request
 from eyed3 import load
 
 __version__ = '1.0.0'
@@ -65,6 +65,18 @@ def run_server(host:str=None, port:int=None, music_path:str=None):
     @app.route("/<string:song>.mp3", methods = ['GET'])
     def song(song):
         return send_file(f"{music_path}/{song}.mp3",as_attachment=True)
+
+    @app.route('/deleteSong', methods=['DELETE'])
+    def delete_song():
+        try:
+            song_name = request.json.get('songName')
+            print(song_name)
+            full_song_name = f"{os.getcwd()}/{music_path}/{song_name}"
+            os.remove(full_song_name)
+        
+            return jsonify({'message': 'Song deleted successfully'})
+        except FileNotFoundError:
+            return jsonify({'error': 'File not found'})
 
     app.run(host=host, port=port, debug=True)
 
