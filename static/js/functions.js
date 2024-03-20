@@ -238,3 +238,11 @@ document.addEventListener("click", function(event) {
         document.getElementById("custom-menu").style.display = "none";
     }
 });
+
+navigator.mediaSession.setActionHandler('previoustrack', function() {
+    Amplitude.prev();
+});
+
+navigator.mediaSession.setActionHandler('nexttrack', function() {
+    Amplitude.next();
+});
