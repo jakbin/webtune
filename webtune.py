@@ -74,9 +74,9 @@ def run_server(host:str=None, port:int=None, music_path:str=None):
             full_song_name = f"{os.getcwd()}/{music_path}/{song_name}"
             os.remove(full_song_name)
         
-            return jsonify({'message': 'Song deleted successfully'})
+            return jsonify({'status': True, 'message': 'Song deleted successfully'})
         except FileNotFoundError:
-            return jsonify({'error': 'File not found'})
+            return jsonify({'status': False, 'message': 'File not found'})
 
     app.run(host=host, port=port, debug=True)
 

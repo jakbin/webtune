@@ -643,3 +643,17 @@ body {
 #custom-menu button:hover {
   background-color: #DEF;
 }
+
+.delete-button{
+/*    background: none;*/
+    border: none;
+    padding: 0;
+    width: 25px;
+    height: 40px;
+}
+div#amplitude-right div.song img.deleteIcon {
+  float: left;
+  display: block;
+  margin-top: 10px;
+  width: 9px;
+  margin-left: 8px; }

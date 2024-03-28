@@ -112,9 +112,18 @@ function loadSongsList() {
                 songDuration.classList.add('song-duration');
                 songDuration.textContent = song.duration;
 
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                // deleteButton.textContent = 'Delete';
+                var deleteIcon = document.createElement('img');
+                deleteIcon.src = '../static/img/ellipsis-v-solid.svg';
+                deleteIcon.className = 'deleteIcon';
+                deleteButton.appendChild(deleteIcon);
+
                 songContainer.appendChild(songNowPlayingIconContainer);
                 songContainer.appendChild(songMetaData);
                 songContainer.appendChild(songDuration);
+                songContainer.appendChild(deleteButton);
 
                 songsContainer.appendChild(songContainer);
             });
@@ -170,25 +179,30 @@ loadSongsList()
 // Define the onDeleteButtonClick function separately
 function onDeleteButtonClick(songName) {
     console.log("Delete button clicked for song:", songName);
-    const data = { songName: songName };
 
-    const options = { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) };
+    const confirmation = confirm(`Delete ${songName} ?`)
 
-    fetch('/deleteSong', options)
-    .then(response => {
-        if (!response.ok) {
-        throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response:', data);
-        // Handle the response data here
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-        // Handle errors here
-    });
+    if (confirmation){
+
+        const data = { songName: songName };
+
+        const options = { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) };
+
+        fetch('/deleteSong', options)
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response:', data);
+            if (data['status']){
+                alert("File deleted successfully.");
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            // Handle errors here
+        });
+    }
 
     loadSongsList()
         .then(success => {
@@ -229,6 +243,27 @@ document.addEventListener("contextmenu", function(event) {
     } else {
         // Hide the custom menu if clicked outside a song
         document.getElementById("custom-menu").style.display = "none";
+    }
+});
+
+// Add event listener to the document to handle click events for delete buttons
+document.addEventListener('click', function(event) {
+    // Check if the clicked element is a delete button
+    if (event.target.classList.contains('delete-button')) {
+        // Prevent the default action of the delete button
+        event.preventDefault();
+        
+        // Get the parent song container of the delete button
+        var songContainer = event.target.closest('.song');
+        
+        // If a song container is found
+        if (songContainer) {
+            // Get the song name from the song container
+            var songName = songContainer.querySelector('.song-title').textContent;
+            
+            // Display an alert with the song name
+            alert('Deleting song: ' + songName);
+        }
     }
 });
 
