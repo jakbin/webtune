@@ -3,8 +3,9 @@ import argparse
 from pathlib import Path
 
 from flask import Flask, render_template, send_file, jsonify, request
-from eyed3 import load
+from eyed3 import load, log
 
+log.setLevel("ERROR")
 __version__ = '1.0.0'
 
 app = Flask(__name__)
@@ -71,7 +72,7 @@ def run_server(host:str=None, port:int=None, music_path:str=None):
         try:
             song_name = request.json.get('songName')
             print(song_name)
-            full_song_name = f"{os.getcwd()}/{music_path}/{song_name}"
+            full_song_name = f"{music_path}/{song_name}"
             os.remove(full_song_name)
         
             return jsonify({'status': True, 'message': 'Song deleted successfully'})
