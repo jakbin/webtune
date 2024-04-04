@@ -178,6 +178,9 @@ loadSongsList()
 
 // Define the onDeleteButtonClick function separately
 function onDeleteButtonClick(songName) {
+    
+    Amplitude.stop();
+
     console.log("Delete button clicked for song:", songName);
 
     const confirmation = confirm(`Delete ${songName} ?`)
