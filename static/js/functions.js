@@ -57,8 +57,8 @@ function addCssInSongList() {
 
 function loadSongsList() {
     return new Promise((resolve, reject) => {
-    fetch('/songs_list').then(response => response.json()).then(data => {
-        const songs = data.songs;
+    fetch('/songs').then(response => response.json()).then(data => {
+        const songs = data;
         const songsContainer = document.getElementById('amplitude-right');
         songsContainer.innerHTML = '';
         
@@ -93,7 +93,7 @@ function loadSongsList() {
 
                 const songTitle = document.createElement('span');
                 songTitle.classList.add('song-title');
-                songTitle.textContent = song.name;
+                songTitle.textContent = song.full_name;
 
                 const songArtist = document.createElement('span');
                 songArtist.classList.add('song-artist');
@@ -161,7 +161,7 @@ function loadSongs() {
                 32: 'play_pause',
             },
             continue_next: true,
-            "songs": songs,
+            "songs": songs
         });
     });
 }

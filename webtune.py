@@ -15,7 +15,7 @@ def convert_to_minutes_seconds(duration):
     seconds = duration % 60
     return f"{minutes}:{seconds:02d}"
 
-def songs_list_right(music_path):
+def songs_lists(music_path):
     files = os.listdir(music_path)
 
     songs = []
@@ -27,7 +27,7 @@ def songs_list_right(music_path):
                     song_name = audiofile.tag.title
                     artist = audiofile.tag.artist
                     duration = convert_to_minutes_seconds(int(audiofile.info.time_secs))
-                    song_meta = {'name': song_name, 'artist': artist, 'duration': duration, 'file_name' : file}
+                    song_meta = {'full_name': song_name, 'artist': artist, 'duration': duration, 'file_name' : file, 'name': file.replace('.mp3', ''), 'url': file, 'cover_art_url': '../static/img/song.jpg'}
                     songs.append(song_meta)
                 except AttributeError:
                     pass
@@ -36,31 +36,15 @@ def songs_list_right(music_path):
 
     return songs
 
-def songs_list_left(music_path):
-    files = os.listdir(music_path)
-
-    dict_songs = []
-    for song in files:
-        if song.endswith('mp3'):
-            dict_song = {'name': song.replace('.mp3', ''), 'url': song, 'cover_art_url': '../static/img/song.jpg'}
-            dict_songs.append(dict_song)
-
-    return dict_songs
-
 def run_server(host:str=None, port:int=None, music_path:str=None):
     
     @app.route("/")
     def home():
         return render_template('index.html')
-    
-    @app.route("/songs_list")
-    def songs_container():
-        songs = songs_list_right(music_path)
-        return jsonify({'songs': songs})
 
     @app.route("/songs")
     def songs_list():
-        dict_songs = songs_list_left(music_path)
+        dict_songs = songs_lists(music_path)
         return jsonify(dict_songs)
 
     @app.route("/<string:song>.mp3", methods = ['GET'])
