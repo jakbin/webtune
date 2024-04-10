@@ -128,6 +128,17 @@ function loadSongsList() {
                 songsContainer.appendChild(songContainer);
             });
         }
+
+        Amplitude.init({
+            "bindings": {
+                39: 'next',
+                37: 'prev',
+                32: 'play_pause',
+            },
+            continue_next: true,
+            "songs": songs
+        });
+        
         resolve(true);
     }).catch(error => {
         console.error('Error:', error);
@@ -138,38 +149,12 @@ function loadSongsList() {
 
 addCssInSongList();
 
-let songs;
-
-function getSongs() {
-    return fetch('/songs')
-        .then(res => res.json())
-        .then(data => {
-            songs = data;
-            const jsonArray = songs;
-            jsonArray.sort((a, b) => {
-              return a.name.localeCompare(b.name);
-            });
-        });
-}
-
-function loadSongs() {
-    return getSongs().then(() => {
-        Amplitude.init({
-            "bindings": {
-                39: 'next',
-                37: 'prev',
-                32: 'play_pause',
-            },
-            continue_next: true,
-            "songs": songs
-        });
-    });
-}
-
 loadSongsList()
     .then(success => {
         console.log("Songs loaded successfully:", success);
-        loadSongs();
+        // loadSongs();
+        resumePlayback();
+        songNameObserver();
     })
     .catch(error => {
         console.error("Error loading songs:", error);
@@ -284,3 +269,35 @@ navigator.mediaSession.setActionHandler('previoustrack', function() {
 navigator.mediaSession.setActionHandler('nexttrack', function() {
     Amplitude.next();
 });
+
+function rememberSongIndex() {
+  const currentSongIndex = Amplitude.getActiveIndex(); // Get current song index
+  localStorage.setItem('lastPlayedSongIndex', currentSongIndex); // Store in Local Storage
+}
+
+function resumePlayback() {
+  const lastPlayedIndex = localStorage.getItem('lastPlayedSongIndex');
+  if (lastPlayedIndex !== null) {
+    Amplitude.setSongAtIndex(lastPlayedIndex); // Parse to integer
+  }
+}
+
+
+function songNameObserver() {
+
+    const songNameValue = document.getElementById("song-name"); // Replace with your actual ID
+
+    // Create a MutationObserver instance
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "characterData" || mutation.type === "childList") {
+          document.title = document.getElementById("song-name").textContent;
+          rememberSongIndex();
+        }
+      });
+    });
+
+    // Configure the observer to watch for text content and child node changes
+    observer.observe(songNameValue, { characterData: true, childList: true });
+
+}
