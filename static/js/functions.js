@@ -129,6 +129,17 @@ function loadSongsList() {
             });
         }
 
+        var shuffleSong = localStorage.getItem('shuffleSong');
+        if (shuffleSong === null) {
+            var shuffle = false;
+        }else{
+            if (shuffleSong === '1'){
+                var shuffle = true;
+            }else{
+                var shuffle = false;
+            }
+        }
+
         Amplitude.init({
             "bindings": {
                 39: 'next',
@@ -136,6 +147,7 @@ function loadSongsList() {
                 32: 'play_pause',
             },
             continue_next: true,
+            shuffle_on: shuffle,
             "songs": songs
         });
         
@@ -152,9 +164,9 @@ addCssInSongList();
 loadSongsList()
     .then(success => {
         console.log("Songs loaded successfully:", success);
-        // loadSongs();
         resumePlayback();
         songNameObserver();
+        shuffleListener();
     })
     .catch(error => {
         console.error("Error loading songs:", error);
@@ -188,14 +200,12 @@ function onDeleteButtonClick(songName) {
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
-            // Handle errors here
         });
     }
 
     loadSongsList()
         .then(success => {
             console.log("Songs loaded successfully:", success);
-            loadSongs();
         })
         .catch(error => {
             console.error("Error loading songs:", error);
@@ -203,13 +213,13 @@ function onDeleteButtonClick(songName) {
 }
 
 document.addEventListener("contextmenu", function(event) {
-    // Prevent the default context menu
+
     event.preventDefault();
 
     // Check if the clicked element is a song container
     var clickedElement = event.target.closest(".song");
     if (clickedElement) {
-        // Find the song name
+
         var songName = clickedElement.querySelector(".file-name").textContent;
 
         // Show the custom context menu
@@ -238,18 +248,14 @@ document.addEventListener("contextmenu", function(event) {
 document.addEventListener('click', function(event) {
     // Check if the clicked element is a delete button
     if (event.target.classList.contains('delete-button')) {
-        // Prevent the default action of the delete button
+
         event.preventDefault();
         
-        // Get the parent song container of the delete button
         var songContainer = event.target.closest('.song');
         
-        // If a song container is found
         if (songContainer) {
-            // Get the song name from the song container
+
             var songName = songContainer.querySelector('.song-title').textContent;
-            
-            // Display an alert with the song name
             alert('Deleting song: ' + songName);
         }
     }
@@ -270,6 +276,7 @@ navigator.mediaSession.setActionHandler('nexttrack', function() {
     Amplitude.next();
 });
 
+
 function rememberSongIndex() {
   const currentSongIndex = Amplitude.getActiveIndex(); // Get current song index
   localStorage.setItem('lastPlayedSongIndex', currentSongIndex); // Store in Local Storage
@@ -278,14 +285,14 @@ function rememberSongIndex() {
 function resumePlayback() {
   const lastPlayedIndex = localStorage.getItem('lastPlayedSongIndex');
   if (lastPlayedIndex !== null) {
-    Amplitude.setSongAtIndex(lastPlayedIndex); // Parse to integer
+    Amplitude.setSongAtIndex(lastPlayedIndex);
   }
 }
 
 
 function songNameObserver() {
 
-    const songNameValue = document.getElementById("song-name"); // Replace with your actual ID
+    const songNameValue = document.getElementById("song-name");
 
     // Create a MutationObserver instance
     const observer = new MutationObserver((mutations) => {
@@ -299,5 +306,23 @@ function songNameObserver() {
 
     // Configure the observer to watch for text content and child node changes
     observer.observe(songNameValue, { characterData: true, childList: true });
+}
+
+
+function shuffleListener() {
+
+    shuffleButton = document.getElementById('shuffle');
+    shuffleButton.addEventListener("click", function() {
+        var shuffleSong = localStorage.getItem('shuffleSong');
+        if (shuffleSong === null) {
+            localStorage.setItem('shuffleSong', 0);
+        }else{
+            if (shuffleSong === '1'){
+                localStorage.setItem('shuffleSong', 0);
+            }else{
+                localStorage.setItem('shuffleSong', 1);
+            }
+        }
+    });
 
 }
